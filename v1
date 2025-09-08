@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Explorador de Principios de Usabilidad de Nielsen</title>
+    <meta name="description" content="Una guía interactiva y con un diseño moderno de los 10 principios de usabilidad de Jakob Nielsen, con ilustraciones animadas, ejemplos prácticos y una interfaz construida para ser clara y funcional." />
+    <meta name="theme-color" content="#4f46e5" />
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      /* Custom scrollbar for better aesthetics */
+      ::-webkit-scrollbar { width: 8px; }
+      ::-webkit-scrollbar-track { background: #f1f5f9; }
+      .dark ::-webkit-scrollbar-track { background: #1e293b; }
+      ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+      .dark ::-webkit-scrollbar-thumb { background: #475569; }
+      ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      .dark ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+      /* Grid background for Hero section */
+      .bg-grid {
+        background-image: linear-gradient(to right, #e5e7eb 1px, transparent 1px), linear-gradient(to bottom, #e5e7eb 1px, transparent 1px);
+        background-size: 2rem 2rem;
+      }
+      .dark .bg-grid {
+        background-image: linear-gradient(to right, #374151 1px, transparent 1px), linear-gradient(to bottom, #374151 1px, transparent 1px);
+      }
+
+      /* Custom non-tailwind styles */
+      .reveal-on-scroll {
+          opacity: 0;
+          transform: translateY(1.5rem);
+          transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+      }
+      .reveal-on-scroll.is-visible {
+          opacity: 1;
+          transform: translateY(0);
+      }
+
+      .principle-card.is-open {
+          box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000);
+          --tw-ring-offset-shadow: 0 0 0 0 #fff;
+          --tw-ring-shadow: 0 0 0 calc(2px) #4f46e5;
+      }
+      .long-description-wrapper {
+          display: grid;
+          grid-template-rows: 0fr;
+          transition: grid-template-rows 0.5s ease-in-out;
+      }
+      .principle-card.is-open .long-description-wrapper {
+          grid-template-rows: 1fr;
+      }
+      .long-description-wrapper > div {
+           overflow: hidden;
+           padding-top: 1rem;
+      }
+      
+      .nav-indicator { 
+          position: absolute;
+          background-color: #4f46e5;
+          bottom: 0; left: 50%; transform: translateX(-50%) scaleX(0);
+          width: 32px; height: 4px; border-radius: 2px;
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      @media (min-width: 1024px) {
+        .nav-indicator {
+          top: 50%; left: 0; transform: translateY(-50%) scaleY(0);
+          width: 4px; height: 32px;
+        }
+      }
+      .nav-item.is-active .nav-indicator { 
+          transform: translateX(-50%) scaleX(1);
+      }
+      @media (min-width: 1024px) {
+          .nav-item.is-active .nav-indicator {
+             transform: translateY(-50%) scaleY(1);
+          }
+      }
+      .nav-tooltip {
+        position: absolute;
+        left: 100%;
+        margin-left: 1rem;
+        padding: 0.375rem 0.75rem;
+        background-color: rgb(31 41 55);
+        color: #fff;
+        font-size: 0.875rem;
+        border-radius: 0.375rem;
+        opacity: 0;
+        transition: opacity 150ms;
+        white-space: nowrap;
+        display: none;
+        pointer-events: none;
+        z-index: 50;
+      }
+      @media (min-width: 1024px) {
+        .nav-tooltip {
+          display: block;
+        }
+      }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-gray-900">
+    <div id="app-container" class="text-gray-800 dark:text-gray-200 transition-colors duration-300">
+        
+        <!-- Progress Bar -->
+        <div id="progress-bar" class="fixed top-0 left-0 lg:left-20 right-0 h-1 bg-indigo-500 z-50 transition-all duration-150" style="width: 0%;"></div>
+
+        <!-- Header -->
+        <header class="fixed top-0 left-0 lg:left-20 right-0 h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-40 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between px-6">
+            <div class="relative w-full max-w-md">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </div>
+                <input type="search" id="search-bar" placeholder="Buscar principio o concepto..." class="w-full pl-10 pr-4 py-2 rounded-full bg-gray-100 dark:bg-gray-800 border border-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition" aria-label="Buscar principio de usabilidad">
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors" aria-label="Cambiar tema">
+                <svg id="theme-icon-sun" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                <svg id="theme-icon-moon" class="w-6 h-6 hidden" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+        </header>
+
+        <!-- Navigation -->
+        <nav id="main-nav" class="fixed bottom-0 left-0 w-full h-16 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm z-40 border-t border-gray-200 dark:border-gray-800 lg:top-0 lg:left-0 lg:w-20 lg:h-full lg:border-t-0 lg:border-r">
+             <div class="flex justify-around items-center h-full lg:flex-col lg:justify-start lg:pt-8 lg:gap-4">
+                <!-- Navigation items will be inserted here by JS -->
+             </div>
+        </nav>
+
+        <main class="lg:pl-20">
+            <!-- Hero Section -->
+            <section id="home" class="relative min-h-screen flex items-center justify-center text-center px-4 overflow-hidden pt-16">
+                <div class="absolute inset-0 bg-white dark:bg-gray-900">
+                    <canvas id="hero-canvas" class="absolute inset-0 z-0"></canvas>
+                    <div class="absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"></div>
+                    <div class="absolute top-0 left-0 h-full w-full bg-[radial-gradient(circle_400px_at_50%_300px,_rgba(124,58,237,0.15),_transparent)]"></div>
+                </div>
+                <div class="relative z-10">
+                    <h1 class="text-4xl sm:text-5xl md:text-7xl font-bold text-gray-900 dark:text-white leading-tight tracking-tighter">
+                    10 Principios de Usabilidad de Nielsen
+                    </h1>
+                    <p class="mt-6 max-w-2xl mx-auto text-lg md:text-xl text-gray-600 dark:text-gray-300">
+                    Una guía interactiva de las heurísticas de Jakob Nielsen, reimaginada con un diseño moderno, limpio y funcional.
+                    </p>
+                </div>
+                <button id="scroll-down-btn" class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10" aria-label="Desplazarse hacia abajo">
+                    <div class="w-8 h-14 border-2 border-gray-400 dark:border-gray-600 rounded-full flex justify-center items-start p-1">
+                        <div class="w-1.5 h-3 bg-gray-400 dark:bg-gray-600 rounded-full animate-bounce"></div>
+                    </div>
+                </button>
+            </section>
+
+            <!-- Introduction Section -->
+            <section id="intro" class="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+                <!-- Content inserted by JS -->
+            </section>
+
+            <!-- Characteristics Section -->
+            <section id="characteristics" class="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+                <!-- Content inserted by JS -->
+            </section>
+            
+            <!-- Principles Section -->
+            <section id="principles" class="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+                <!-- Content inserted by JS -->
+            </section>
+
+            <!-- Resources Section -->
+            <section id="resources" class="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+                 <!-- Content inserted by JS -->
+            </section>
+            
+            <!-- FAQ Section -->
+            <section id="faq" class="py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+                 <!-- Content inserted by JS -->
+            </section>
+        </main>
+        
+        <footer class="bg-gray-100 dark:bg-gray-800/50 lg:pl-20">
+            <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8 text-center">
+                <p class="text-gray-600 dark:text-gray-400">
+                Diseñado y desarrollado con pasión para la comunidad de UX.
+                </p>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-500">
+                Basado en los principios heurísticos de{' '}
+                <a href="https://www.nngroup.com/articles/ten-usability-heuristics/" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 dark:text-indigo-400 hover:underline">
+                    Jakob Nielsen
+                </a>.
+                </p>
+                <p class="mt-2 text-sm text-gray-500 dark:text-gray-500" id="footer-year">
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <script type="module">
+        class NielsenApp {
+            constructor() {
+                this.data = this.getData();
+                this.theme = 'light';
+                this.searchTerm = '';
+                this.activeSection = 'home';
+                this.sectionRefs = {};
+                this.heroCanvas = null;
+                this.ctx = null;
+                this.particles = [];
+                this.mouse = { x: undefined, y: undefined };
+                this.animationFrameId = null;
+                this.init();
+            }
+
+            // =================================================================
+            // INITIALIZATION & SETUP
+            // =================================================================
+
+            init() {
+                this.setupTheme();
+                this.populateContent();
+                this.setupEventListeners();
+                this.setupIntersectionObservers();
+                this.initHeroAnimation();
+            }
+
+            setupTheme() {
+                const savedTheme = localStorage.getItem('theme');
+                // Prioritize saved theme only if it's a valid value
+                if (savedTheme === 'dark' || savedTheme === 'light') {
+                    this.theme = savedTheme;
+                } else {
+                    // Otherwise, fall back to system preference
+                    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                    this.theme = prefersDark ? 'dark' : 'light';
+                }
+                this.applyTheme();
+            }
+
+            setupEventListeners() {
+                document.getElementById('theme-toggle').addEventListener('click', () => this.toggleTheme());
+                document.getElementById('search-bar').addEventListener('input', (e) => this.handleSearch(e.target.value));
+                document.getElementById('scroll-down-btn').addEventListener('click', () => this.scrollToSection('intro'));
+                window.addEventListener('scroll', () => this.updateScrollProgress());
+            }
+
+            setupIntersectionObservers() {
+                const revealObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.reveal-on-scroll').forEach(el => revealObserver.observe(el));
+
+                const scrollSpyObserver = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            this.activeSection = entry.target.id;
+                            this.updateNavHighlight();
+                        }
+                    });
+                }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+                
+                document.querySelectorAll('section[id]').forEach(section => {
+                    this.sectionRefs[section.id] = section;
+                    scrollSpyObserver.observe(section);
+                });
+            }
+
+            initHeroAnimation() {
+                this.heroCanvas = document.getElementById('hero-canvas');
+                if (!this.heroCanvas) return;
+                this.ctx = this.heroCanvas.getContext('2d');
+
+                const handleMouseMove = (event) => {
+                    const rect = this.heroCanvas.getBoundingClientRect();
+                    this.mouse.x = event.clientX - rect.left;
+                    this.mouse.y = event.clientY - rect.top;
+                };
+
+                const handleMouseOut = () => {
+                    this.mouse.x = undefined;
+                    this.mouse.y = undefined;
+                };
+
+                this.heroCanvas.addEventListener('mousemove', handleMouseMove);
+                this.heroCanvas.addEventListener('mouseout', handleMouseOut);
+
+                const createParticle = (width, height) => {
+                    return {
+                        x: Math.random() * width,
+                        y: Math.random() * height,
+                        vx: (Math.random() - 0.5) * 0.4,
+                        vy: (Math.random() - 0.5) * 0.4,
+                        radius: Math.random() * 1.5 + 1,
+                    };
+                };
+                
+                const resize = () => {
+                    this.heroCanvas.width = this.heroCanvas.offsetWidth;
+                    this.heroCanvas.height = this.heroCanvas.offsetHeight;
+                    this.particles = [];
+                    const particleCount = Math.floor((this.heroCanvas.width * this.heroCanvas.height) / 12000);
+                    for (let i = 0; i < particleCount; i++) {
+                        this.particles.push(createParticle(this.heroCanvas.width, this.heroCanvas.height));
+                    }
+                };
+
+                const animate = () => {
+                    this.ctx.clearRect(0, 0, this.heroCanvas.width, this.heroCanvas.height);
+                    
+                    const isDark = document.documentElement.classList.contains('dark');
+                    const particleColor = isDark ? 'rgba(167, 139, 250, 0.7)' : 'rgba(124, 58, 237, 0.7)';
+                    const lineColorBase = isDark ? '167, 139, 250' : '124, 58, 237';
+
+                    this.particles.forEach((p, i) => {
+                        if (this.mouse.x !== undefined && this.mouse.y !== undefined) {
+                            const mouseDx = p.x - this.mouse.x;
+                            const mouseDy = p.y - this.mouse.y;
+                            const mouseDistance = Math.sqrt(mouseDx * mouseDx + mouseDy * mouseDy);
+                            const maxMouseDist = 120;
+                            if (mouseDistance < maxMouseDist) {
+                                const forceDirectionX = mouseDx / mouseDistance;
+                                const forceDirectionY = mouseDy / mouseDistance;
+                                const force = (maxMouseDist - mouseDistance) / maxMouseDist;
+                                p.x += forceDirectionX * force * 2;
+                                p.y += forceDirectionY * force * 2;
+                            }
+                        }
+
+                        p.x += p.vx;
+                        p.y += p.vy;
+
+                        if (p.x < -p.radius) p.x = this.heroCanvas.width + p.radius;
+                        if (p.x > this.heroCanvas.width + p.radius) p.x = -p.radius;
+                        if (p.y < -p.radius) p.y = this.heroCanvas.height + p.radius;
+                        if (p.y > this.heroCanvas.height + p.radius) p.y = -p.radius;
+
+                        this.ctx.beginPath();
+                        this.ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                        this.ctx.fillStyle = particleColor;
+                        this.ctx.fill();
+
+                        for (let j = i + 1; j < this.particles.length; j++) {
+                            const p2 = this.particles[j];
+                            const dx = p.x - p2.x;
+                            const dy = p.y - p2.y;
+                            const distance = Math.sqrt(dx * dx + dy * dy);
+                            const maxConnectDist = 100;
+
+                            if (distance < maxConnectDist) {
+                                this.ctx.beginPath();
+                                this.ctx.strokeStyle = `rgba(${lineColorBase}, ${0.7 - distance / maxConnectDist})`;
+                                this.ctx.lineWidth = 0.5;
+                                this.ctx.moveTo(p.x, p.y);
+                                this.ctx.lineTo(p2.x, p2.y);
+                                this.ctx.stroke();
+                            }
+                        }
+                    });
+
+                    this.animationFrameId = requestAnimationFrame(animate);
+                };
+
+                window.addEventListener('resize', resize);
+                resize();
+                
+                const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+                if (!motionQuery.matches) {
+                    this.animationFrameId = requestAnimationFrame(animate);
+                }
+                
+                motionQuery.addEventListener('change', () => {
+                    if (motionQuery.matches) {
+                        cancelAnimationFrame(this.animationFrameId);
+                    } else {
+                        if (!this.animationFrameId) {
+                            this.animationFrameId = requestAnimationFrame(animate);
+                        }
+                    }
+                });
+            }
+
+            // =================================================================
+            // DYNAMIC CONTENT POPULATION
+            // =================================================================
+
+            populateContent() {
+                this.populateNav();
+                this.populateIntro();
+                this.populateCharacteristics();
+                this.populatePrinciples();
+                this.populateResources();
+                this.populateFaqs();
+                this.populateFooter();
+
+                const revealObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.1 });
+                document.querySelectorAll('.reveal-on-scroll').forEach(el => revealObserver.observe(el));
+            }
+
+            populateNav() {
+                const navContainer = document.querySelector('#main-nav > div');
+                let navHtml = `
+                    <a href="#home" data-navid="home" class="flex-col items-center justify-center hidden lg:flex mb-4">
+                        <svg class="w-8 h-8 text-indigo-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-500">UX</span>
+                    </a>`;
+                
+                this.data.sections.forEach(section => {
+                    navHtml += `
+                        <button data-navid="${section.id}" class="nav-item group relative flex flex-col items-center justify-center w-16 h-16 rounded-lg transition-colors duration-200 text-gray-500 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-indigo-500" aria-label="Ir a ${section.label}">
+                            ${section.icon}
+                            <span class="text-xs font-medium mt-1 lg:hidden">${section.label}</span>
+                            <span class="nav-tooltip group-hover:opacity-100">${section.label}</span>
+                            <div class="absolute bottom-0 left-0 w-full h-1 lg:h-full lg:w-1 lg:top-0"><span class="nav-indicator"></span></div>
+                        </button>`;
+                });
+                navContainer.innerHTML = navHtml;
+                navContainer.querySelectorAll('button[data-navid], a[data-navid]').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        this.scrollToSection(el.dataset.navid);
+                    });
+                });
+                this.updateNavHighlight();
+            }
+
+            populateSection(sectionId, icon, title, contentHtml) {
+                const section = document.getElementById(sectionId);
+                section.innerHTML = `
+                    <div class="max-w-7xl mx-auto">
+                        <header class="text-center mb-12 reveal-on-scroll">
+                            <div class="inline-flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-500 dark:text-indigo-400 rounded-full p-3 mb-4">${icon}</div>
+                            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">${title}</h2>
+                        </header>
+                        <div class="reveal-on-scroll">${contentHtml}</div>
+                    </div>`;
+            }
+            
+            populateIntro() {
+                const introSection = document.getElementById('intro');
+                const description = `La usabilidad es un atributo de calidad que mide lo fácil que es usar una interfaz. Según la norma ISO 9241-11, se refiere a la medida en que un producto puede ser utilizado por usuarios específicos para alcanzar objetivos concretos con <strong>efectividad, eficiencia y satisfacción</strong> en un contexto de uso determinado.`;
+                const content = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12 max-w-5xl mx-auto">
+                    <div class="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg overflow-hidden reveal-on-scroll">
+                        <img src="https://images.unsplash.com/photo-1516321497487-e288fb19713f?auto=format&fit=crop&w=600&q=80" alt="Dos personas colaborando en un tablero con notas adhesivas, representando la complejidad de la Experiencia de Usuario." loading="lazy" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Usabilidad vs. Experiencia de Usuario (UX)</h3>
+                            <p class="mt-2 text-gray-600 dark:text-gray-400">Aunque están relacionados, no son lo mismo. La usabilidad se centra en la facilidad de uso y el logro de tareas (el "cómo"). La Experiencia de Usuario (UX) es un concepto más amplio que abarca todas las emociones, creencias y percepciones de un usuario antes, durante y después de la interacción con un producto.</p>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800/50 rounded-2xl shadow-lg overflow-hidden reveal-on-scroll" style="transition-delay: 100ms;">
+                        <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=80" alt="Una persona sonriendo mientras realiza un pago sin contacto, simbolizando la satisfacción del cliente." loading="lazy" class="w-full h-48 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">Importancia de la Usabilidad</h3>
+                            <p class="mt-2 text-gray-600 dark:text-gray-400">Un producto usable se traduce directamente en beneficios tangibles: aumenta la satisfacción del cliente, reduce las tasas de abandono, minimiza los costos de soporte y mejora la reputación de la marca.</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+                
+                introSection.innerHTML = `
+                    <div class="max-w-7xl mx-auto">
+                        <header class="text-center mb-12 reveal-on-scroll">
+                            <div class="inline-flex items-center justify-center bg-indigo-100 dark:bg-indigo-900/50 text-indigo-500 dark:text-indigo-400 rounded-full p-3 mb-4">${this.data.icons.lightbulb}</div>
+                            <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">¿Qué es la Usabilidad?</h2>
+                            <p class="mt-4 max-w-3xl mx-auto text-lg text-gray-600 dark:text-gray-400">${description}</p>
+                        </header>
+                        ${content}
+                    </div>`;
+            }
+
+            populateCharacteristics() {
+                const content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                        ${this.data.characteristics.map(c => `
+                            <div class="bg-white dark:bg-gray-800/50 p-6 rounded-2xl shadow-lg transition-all duration-300 ease-in-out">
+                                <div class="flex items-center gap-4">
+                                    <div class="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-full text-indigo-500 dark:text-indigo-400">
+                                        ${c.icon}
+                                    </div>
+                                    <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${c.title}</h3>
+                                </div>
+                                <p class="mt-4 text-gray-600 dark:text-gray-400">${c.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>`;
+                this.populateSection('characteristics', this.data.icons.checkCircle, 'Características de un Producto Usable', content);
+            }
+
+            populatePrinciples() {
+                const content = `
+                    <div id="principles-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mt-8">
+                        ${this.data.principles.map(p => `
+                            <div class="principle-card reveal-on-scroll rounded-2xl shadow-lg transition-all duration-300 ease-in-out bg-white dark:bg-gray-800/50 overflow-hidden cursor-pointer transform hover:-translate-y-2 hover:shadow-2xl" data-principle-id="${p.id}" tabindex="0">
+                                <div class="h-48 flex items-center justify-center p-4 bg-gray-50 dark:bg-gray-800 overflow-hidden">
+                                    ${p.illustration}
+                                </div>
+                                <div class="p-6">
+                                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                                        <span class="text-indigo-500 dark:text-indigo-400">${p.id}.</span> ${p.title}
+                                    </h3>
+                                    <p class="mt-2 text-gray-600 dark:text-gray-400">${p.description}</p>
+                                    <div class="long-description-wrapper">
+                                        <div class="text-gray-600 dark:text-gray-400 prose dark:prose-invert max-w-none">${p.longDescription}</div>
+                                    </div>
+                                </div>
+                                <div class="px-6 pb-4 flex justify-end">
+                                    <button class="text-sm font-semibold text-indigo-600 dark:text-indigo-400 hover:underline focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded">Leer más</button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <p id="no-results-message" class="text-center text-gray-500 dark:text-gray-400 col-span-full mt-8 text-lg hidden">
+                        No se encontraron principios que coincidan con su búsqueda.
+                    </p>`;
+
+                this.populateSection('principles', this.data.icons.search, 'Los 10 Principios Heurísticos', content);
+
+                document.querySelectorAll('.principle-card').forEach(card => {
+                    const button = card.querySelector('button');
+                    const toggleOpen = () => {
+                        card.classList.toggle('is-open');
+                        button.textContent = card.classList.contains('is-open') ? 'Mostrar menos' : 'Leer más';
+                    };
+                    card.addEventListener('click', toggleOpen);
+                    card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') toggleOpen(); });
+                });
+            }
+
+            populateResources() {
+                 const content = `
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
+                        ${this.data.resources.map(r => `
+                            <a href="${r.link}" target="_blank" rel="noopener noreferrer" class="block group reveal-on-scroll rounded-2xl shadow-lg transition-all duration-300 ease-in-out">
+                                <div class="bg-white dark:bg-gray-800/50 p-6 h-full flex flex-col">
+                                    <div class="flex items-center gap-4">
+                                        <div class="bg-indigo-100 dark:bg-indigo-900/50 p-3 rounded-full text-indigo-500 dark:text-indigo-400">
+                                            ${r.icon}
+                                        </div>
+                                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white">${r.title}</h3>
+                                    </div>
+                                    <p class="mt-4 text-gray-600 dark:text-gray-400 flex-grow">${r.description}</p>
+                                    <span class="text-sm font-medium text-indigo-500 dark:text-indigo-400 mt-4 inline-block group-hover:underline">
+                                        Visitar Recurso &rarr;
+                                    </span>
+                                </div>
+                            </a>
+                        `).join('')}
+                    </div>`;
+                this.populateSection('resources', this.data.icons.bookOpen, 'Recursos y Herramientas', content);
+            }
+
+            populateFaqs() {
+                const content = `
+                    <div class="max-w-3xl mx-auto mt-8 space-y-4">
+                        ${this.data.faqs.map(f => `
+                            <details class="group reveal-on-scroll bg-white dark:bg-gray-800/50 p-6 rounded-xl shadow-sm transition-all duration-300 open:ring-2 open:ring-indigo-500 open:shadow-lg">
+                                <summary class="flex items-center justify-between cursor-pointer list-none">
+                                    <h3 class="text-lg font-semibold text-gray-900 dark:text-white">${f.question}</h3>
+                                    <span class="transition-transform duration-300 transform group-open:rotate-180">
+                                        <svg class="w-6 h-6 text-indigo-500" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                                    </span>
+                                </summary>
+                                <p class="mt-4 text-gray-600 dark:text-gray-400">${f.answer}</p>
+                            </details>
+                        `).join('')}
+                    </div>`;
+                this.populateSection('faq', this.data.icons.lightbulb, 'Preguntas Frecuentes', content);
+            }
+            
+            populateFooter() {
+                document.getElementById('footer-year').textContent = `© ${new Date().getFullYear()} Principios de Usabilidad. Todos los derechos reservados.`;
+            }
+
+            // =================================================================
+            // UI & EVENT HANDLERS
+            // =================================================================
+
+            applyTheme() {
+                const root = document.documentElement;
+                const sunIcon = document.getElementById('theme-icon-sun');
+                const moonIcon = document.getElementById('theme-icon-moon');
+
+                const isDark = this.theme === 'dark';
+
+                // Use toggle with a boolean to set or remove the class based on theme state
+                root.classList.toggle('dark', isDark);
+
+                // Show the sun icon in dark mode, and the moon icon in light mode
+                sunIcon.classList.toggle('hidden', !isDark);
+                moonIcon.classList.toggle('hidden', isDark);
+
+                localStorage.setItem('theme', this.theme);
+            }
+
+            toggleTheme() {
+                this.theme = this.theme === 'dark' ? 'light' : 'dark';
+                this.applyTheme();
+            }
+
+            updateScrollProgress() {
+                const progressBar = document.getElementById('progress-bar');
+                const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                const scrollPosition = window.scrollY;
+                const progress = totalHeight > 0 ? (scrollPosition / totalHeight) * 100 : 0;
+                progressBar.style.width = `${progress}%`;
+            }
+
+            handleSearch(query) {
+                this.searchTerm = query.toLowerCase().trim();
+                const principles = document.querySelectorAll('.principle-card');
+                let visibleCount = 0;
+                principles.forEach(card => {
+                    const principleId = card.dataset.principleId;
+                    const principleData = this.data.principles.find(p => p.id == principleId);
+                    const searchableText = `${principleData.title} ${principleData.description} ${principleData.longDescription}`.toLowerCase();
+                    
+                    if (searchableText.includes(this.searchTerm)) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+                document.getElementById('no-results-message').style.display = visibleCount === 0 ? 'block' : 'none';
+            }
+
+            scrollToSection(id) {
+                const element = this.sectionRefs[id];
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+            
+            updateNavHighlight() {
+                document.querySelectorAll('[data-navid]').forEach(el => {
+                    const isActive = el.dataset.navid === this.activeSection;
+                    el.classList.toggle('is-active', isActive);
+                });
+            }
+
+            // =================================================================
+            // DATA
+            // =================================================================
+            
+            getData() {
+                const illustrations = {
+                    visibility: `<svg viewBox="0 0 100 60" class="w-full h-full"><rect x="10" y="25" width="80" height="10" rx="5" fill="currentColor" class="text-gray-200 dark:text-gray-700" /><rect x="10" y="25" width="50" height="10" rx="5" fill="currentColor" class="text-indigo-500"><animate attributeName="width" values="0;80;0" dur="4s" repeatCount="indefinite" /></rect><text x="50" y="18" text-anchor="middle" class="text-sm font-semibold fill-current text-gray-600 dark:text-gray-400">Cargando...</text></svg>`,
+                    match: `<svg viewBox="0 0 100 60" class="w-full h-full"><g class="text-indigo-500 fill-current"><path d="M30 20 h40 v20 h-40 z" /><circle cx="35" cy="25" r="2" /><rect x="40" y="24" width="25" height="2" /></g><g class="text-gray-500 dark:text-gray-400 fill-current"><path d="M25 45 h50 v2" /><path d="M75 45 l-5 -5 h-40 l-5 5" /></g><animateTransform attributeName="transform" type="translate" values="0 0; 0 -15; 0 0" dur="3s" repeatCount="indefinite" /></svg>`,
+                    control: `<svg viewBox="0 0 100 60" class="w-full h-full"><path d="M 20 30 L 80 30" stroke="currentColor" stroke-width="2" class="text-gray-300 dark:text-gray-600" /><circle cx="50" cy="30" r="8" fill="currentColor" class="text-indigo-500 cursor-pointer"><animate attributeName="cx" values="20; 80; 20" dur="4s" repeatCount="indefinite" /></circle><text x="20" y="45" text-anchor="middle" class="text-sm fill-current text-gray-500 dark:text-gray-400">Inicio</text><text x="80" y="45" text-anchor="middle" class="text-sm fill-current text-gray-500 dark:text-gray-400">Fin</text></svg>`,
+                    consistency: `<svg viewBox="0 0 100 60" class="w-full h-full"><g><rect x="15" y="15" width="25" height="15" rx="3" fill="currentColor" class="text-indigo-500" /><text x="27.5" y="26" text-anchor="middle" class="text-xs fill-current text-white">OK</text></g><g><rect x="60" y="15" width="25" height="15" rx="3" fill="currentColor" class="text-indigo-500" /><text x="72.5" y="26" text-anchor="middle" class="text-xs fill-current text-white">OK</text></g><g><rect x="15" y="40" width="25" height="15" rx="3" fill="currentColor" class="text-indigo-500" /><text x="27.5" y="51" text-anchor="middle" class="text-xs fill-current text-white">OK</text></g><g><rect x="60" y="40" width="25" height="15" rx="3" fill="currentColor" class="text-red-500"><animate attributeName="fill" values="currentColor; #ef4444; currentColor" dur="3s" repeatCount="indefinite" /></rect><text x="72.5" y="51" text-anchor="middle" class="text-xs fill-current text-white">SAVE</text></g></svg>`,
+                    errorPrevention: `<svg viewBox="0 0 100 60" class="w-full h-full"><rect x="20" y="15" width="60" height="30" rx="5" stroke-dasharray="4" stroke-width="2" class="stroke-current text-gray-300 dark:text-gray-600" fill="none" /><text x="50" y="35" text-anchor="middle" class="text-lg fill-current text-gray-400 dark:text-gray-500">?</text><g class="cursor-pointer"><circle cx="70" cy="25" r="10" fill="currentColor" class="text-indigo-500" /><path d="M66 25 l3 3 l5 -5" stroke="white" stroke-width="2" fill="none" /><animateTransform attributeName="transform" type="scale" values="1; 1.2; 1" dur="2s" repeatCount="indefinite" /></g></svg>`,
+                    recognition: `<svg viewBox="0 0 100 60" class="w-full h-full"><path d="M20,30 Q50,10 80,30" stroke="currentColor" class="text-gray-300 dark:text-gray-600" stroke-width="2" fill="none" stroke-dasharray="5 5"><animate attributeName="stroke-dashoffset" values="0; -20" dur="2s" repeatCount="indefinite" /></path><path d="M20,30 Q50,50 80,30" stroke="currentColor" class="text-indigo-500" stroke-width="2.5" fill="none" /><circle cx="20" cy="30" r="4" fill="currentColor" class="text-indigo-500" /><circle cx="80" cy="30" r="4" fill="currentColor" class="text-indigo-500" /></svg>`,
+                    flexibility: `<svg viewBox="0 0 100 60" class="w-full h-full"><path d="M 10 50 C 30 10, 70 10, 90 50" stroke="currentColor" class="text-indigo-400" stroke-width="2" fill="none" /><path d="M 10 50 L 50 20 L 90 50" stroke="currentColor" class="text-gray-400" stroke-width="2" fill="none" stroke-dasharray="3" /><circle cx="10" cy="50" r="3" fill="currentColor" class="text-indigo-500" /><circle cx="90" cy="50" r="3" fill="currentColor" class="text-indigo-500" /><circle cx="50" cy="20" r="3" fill="currentColor" class="text-gray-500" /></svg>`,
+                    aesthetic: `<svg viewBox="0 0 100 60" class="w-full h-full"><rect x="15" y="10" width="30" height="40" rx="5" fill="currentColor" class="text-indigo-200 dark:text-indigo-900" /><rect x="20" y="15" width="20" height="10" rx="2" fill="currentColor" class="text-indigo-400 dark:text-indigo-600" /><rect x="55" y="10" width="30" height="40" rx="5" fill="currentColor" class="text-gray-200 dark:text-gray-700" /><rect x="60" y="15" width="20" height="4" rx="1" fill="currentColor" class="text-gray-400 dark:text-gray-500" /><rect x="60" y="23" width="20" height="4" rx="1" fill="currentColor" class="text-gray-400 dark:text-gray-500" /><rect x="60" y="31" width="12" height="4" rx="1" fill="currentColor" class="text-gray-400 dark:text-gray-500" /><rect x="60" y="39" width="20" height="4" rx="1" fill="currentColor" class="text-gray-400 dark:text-gray-500" /></svg>`,
+                    helpErrors: `<svg viewBox="0 0 100 60" class="w-full h-full"><line x1="20" y1="20" x2="80" y2="20" stroke-width="2" class="stroke-current text-red-500" /><text x="50" y="35" text-anchor="middle" class="text-sm fill-current text-red-500 font-semibold">Correo inválido</text><g><path d="M 50 40 L 45 50 L 55 50 z" class="fill-current text-indigo-500" /><animateTransform attributeName="transform" type="translate" values="0 0; 0 -2; 0 0" dur="1.5s" repeatCount="indefinite" /></g></svg>`,
+                    helpDocumentation: `<svg viewBox="0 0 100 60" class="w-full h-full"><path d="M30 10 h40 v40 h-40 z" fill="none" stroke="currentColor" stroke-width="2" class="text-gray-300 dark:text-gray-600" /><circle cx="50" cy="30" r="10" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-500" /><text x="50" y="34" text-anchor="middle" class="text-lg font-bold fill-current text-indigo-500">?</text><g><circle cx="50" cy="30" r="15" fill="none" stroke="currentColor" stroke-width="2" class="text-indigo-500" stroke-dasharray="4"><animate attributeName="stroke-dashoffset" values="0; -12" dur="2s" repeatCount="indefinite" /></circle></g></svg>`
+                };
+                const icons = {
+                    lightbulb: `<svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>`,
+                    checkCircle: `<svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+                    search: `<svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+                    bookOpen: `<svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`,
+                    rocket: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4 20-7z"></path></svg>`,
+                    speed: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m14.23 8.3-4.22 4.51.5 4.09 4.22-4.51-.5-4.09z"/><path d="M12 6.16V2.5l-2.94 2.94"/><path d="M15.41 3.51 12 6.16"/></svg>`,
+                    memory: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 14h3c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1H2"/><path d="M20 14h-3c-.6 0-1-.4-1-1V5c0-.6.4-1 1-1h3"/><path d="M6 14h2c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1H6"/><path d="M14 14h2c.6 0 1-.4 1-1V5c0-.6-.4-1-1-1h-2"/><path d="M4 18h16"/><path d="M6 22h12"/></svg>`,
+                    error: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>`,
+                    satisfaction: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>`,
+                    penTool: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>`,
+                    code: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`,
+                    layers: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>`
+                };
+
+                const navIcons = {
+                   lightbulb: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"></path><path d="M9 18h6"></path><path d="M10 22h4"></path></svg>`,
+                   checkCircle: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
+                   search: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>`,
+                   bookOpen: `<svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>`
+                };
+
+                return {
+                    icons,
+                    principles: [
+                        { id: 1, title: 'Visibilidad del estado del sistema', description: 'El sistema siempre debe mantener informados a los usuarios sobre lo que está sucediendo.', longDescription: "Deben recibir retroalimentación apropiada en un tiempo razonable. Para acciones cortas, la respuesta puede ser inmediata y visual. Para procesos más largos, un indicador de progreso les da la seguridad de que el sistema está trabajando y reduce la incertidumbre.", illustration: illustrations.visibility },
+                        { id: 2, title: 'Relación entre el sistema y el mundo real', description: 'El sistema debe hablar el lenguaje de los usuarios, con palabras y conceptos familiares.', longDescription: "La interfaz debe usar terminología, iconografía y convenciones que los usuarios ya conozcan. La información debe aparecer en un orden natural y lógico. Esto crea una experiencia intuitiva, donde los usuarios no necesitan aprender una nueva jerga para interactuar con el producto.", illustration: illustrations.match },
+                        { id: 3, title: 'Control y libertad del usuario', description: 'Los usuarios necesitan una "salida de emergencia" para abandonar acciones no deseadas.', longDescription: "Los usuarios a menudo cometen errores. Deben tener una forma clara de deshacer y rehacer acciones. Esto fomenta la sensación de libertad y confianza, ya que saben que pueden revertir un error sin consecuencias graves. Funciones como 'Cancelar' o 'Deshacer' son cruciales.", illustration: illustrations.control },
+                        { id: 4, title: 'Consistencia y estándares', description: 'Los usuarios no deberían tener que preguntarse si diferentes palabras o acciones significan lo mismo.', longDescription: "Mantener la consistencia dentro del producto (interna) y seguir las convenciones de la plataforma (externa) reduce la carga cognitiva del usuario. Elementos de interfaz, terminología y acciones deben ser predecibles y comportarse de la misma manera en todo el sistema.", illustration: illustrations.consistency },
+                        { id: 5, title: 'Prevención de errores', description: 'Un buen diseño previene los problemas antes de que ocurran.', longDescription: "Es mejor diseñar interfaces que eviten que los usuarios cometan errores. Esto se puede lograr eliminando condiciones propensas a errores, ofreciendo buenas opciones predeterminadas o presentando una opción de confirmación antes de que se comprometan con una acción destructiva.", illustration: illustrations.errorPrevention },
+                        { id: 6, title: 'Reconocer en lugar de recordar', description: 'Minimizar la carga de memoria del usuario haciendo visibles los objetos, acciones y opciones.', longDescription: "Los humanos son mejores reconociendo cosas que recordándolas. La interfaz debe proporcionar pistas visuales e información contextual para que los usuarios no tengan que recordar información de una parte de la interfaz a otra. Las instrucciones deben ser visibles o fácilmente recuperables.", illustration: illustrations.recognition },
+                        { id: 7, title: 'Flexibilidad y eficiencia de uso', description: 'Permitir a los usuarios adaptar acciones frecuentes para un uso más rápido.', longDescription: "El sistema debe ser eficiente tanto para usuarios novatos como para expertos. Los aceleradores, como los atajos de teclado o los gestos táctiles, pueden acelerar la interacción para los usuarios avanzados sin afectar la experiencia de los principiantes. La personalización también puede mejorar la eficiencia.", illustration: illustrations.flexibility },
+                        { id: 8, title: 'Diseño estético y minimalista', description: 'Las interfaces no deben contener información que sea irrelevante o rara vez necesaria.', longDescription: "Cada unidad extra de información en una interfaz compite con las unidades de información relevantes y disminuye su visibilidad relativa. El diseño debe centrarse en lo esencial, eliminando el desorden visual. Un diseño limpio no solo es más estético, sino que también mejora la usabilidad.", illustration: illustrations.aesthetic },
+                        { id: 9, title: 'Ayudar a los usuarios a reconocer, diagnosticar y recuperarse de errores', description: 'Los mensajes de error deben expresarse en un lenguaje claro, indicar el problema y sugerir una solución.', longDescription: "Los buenos mensajes de error son cruciales. Deben ser visibles, comprensibles (sin códigos crípticos), educados y proponer una solución constructiva. En lugar de culpar al usuario, el mensaje debe guiarlo para que pueda resolver el problema rápidamente.", illustration: illustrations.helpErrors },
+                        { id: 10, title: 'Ayuda y documentación', description: 'Es mejor si el sistema se puede usar sin documentación, pero puede ser necesario proporcionar ayuda.', longDescription: "Aunque el objetivo es crear una interfaz tan intuitiva que no necesite explicación, la ayuda siempre debe estar disponible. La documentación debe ser fácil de buscar, centrada en las tareas del usuario, presentar pasos concretos y no ser demasiado extensa.", illustration: illustrations.helpDocumentation }
+                    ],
+                    sections: [
+                        { id: 'intro', label: 'Intro', icon: navIcons.lightbulb },
+                        { id: 'characteristics', label: 'Características', icon: navIcons.checkCircle },
+                        { id: 'principles', label: 'Principios', icon: navIcons.search },
+                        { id: 'resources', label: 'Recursos', icon: navIcons.bookOpen },
+                        { id: 'faq', label: 'FAQ', icon: navIcons.lightbulb }
+                    ],
+                    characteristics: [
+                        { title: 'Facilidad de Aprendizaje', description: '¿Qué tan fácil es para los usuarios realizar tareas básicas la primera vez que interactúan con el diseño?', icon: icons.rocket },
+                        { title: 'Eficiencia', description: 'Una vez que han aprendido el diseño, ¿con qué rapidez pueden realizar las tareas?', icon: icons.speed },
+                        { title: 'Memorabilidad', description: 'Cuando los usuarios regresan al diseño después de un tiempo, ¿pueden recordar cómo usarlo fácilmente?', icon: icons.memory },
+                        { title: 'Tolerancia a Errores', description: '¿Cuántos errores cometen, qué tan graves son y cómo de fácil pueden recuperarse de ellos?', icon: icons.error },
+                        { title: 'Satisfacción', description: '¿Qué tan agradable es usar el diseño? ¿Disfrutan los usuarios de la experiencia?', icon: icons.satisfaction }
+                    ],
+                    resources: [
+                        { title: 'Nielsen Norman Group', description: 'La fuente original de las heurísticas y una autoridad líder en UX.', link: 'https://www.nngroup.com/', icon: icons.bookOpen },
+                        { title: 'Material Design', description: 'El sistema de diseño de Google, un gran ejemplo de consistencia y estándares.', link: 'https://m3.material.io/', icon: icons.layers },
+                        { title: 'Figma Community', description: 'Explora archivos y kits de UI para ver cómo otros diseñadores aplican estos principios.', link: 'https://www.figma.com/community', icon: icons.penTool },
+                        { title: 'Awwwards', description: 'Galería de inspiración para diseño estético y minimalista, aunque a veces a costa de la usabilidad.', link: 'https://www.awwwards.com/', icon: icons.penTool },
+                        { title: 'Smashing Magazine', description: 'Artículos de alta calidad sobre UX, diseño de interfaces y desarrollo front-end.', link: 'https://www.smashingmagazine.com/', icon: icons.bookOpen },
+                        { title: 'CodePen', description: 'Ejemplos de código interactivos para experimentar con micro-interacciones y feedback de UI.', link: 'https://codepen.io/', icon: icons.code }
+                    ],
+                    faqs: [
+                        { question: '¿Qué diferencia hay entre Usabilidad y Experiencia de Usuario (UX)?', answer: 'La usabilidad se enfoca en la facilidad con la que un usuario puede completar una tarea específica (es un componente de la UX). La UX es más amplia y abarca todas las emociones y percepciones del usuario con el producto, incluyendo la usabilidad, el diseño visual, el rendimiento y el branding.' },
+                        { question: '¿Es necesario aplicar los 10 principios en cada proyecto?', answer: 'Sí, son una guía fundamental. Aunque el grado de aplicación puede variar según el contexto, ignorar alguno de ellos suele llevar a problemas de usabilidad. Funcionan como una lista de verificación para crear interfaces robustas y amigables.' },
+                        { question: '¿Cuánto cuesta implementar la usabilidad?', answer: 'Invertir en usabilidad desde el principio es mucho más barato que corregir problemas en etapas tardías del desarrollo. Métodos como la evaluación heurística son muy rentables. El costo de no invertir en usabilidad (pérdida de clientes, aumento de soporte) suele ser mucho mayor.' }
+                    ]
+                };
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new NielsenApp();
+        });
+    </script>
+</body>
+</html>
